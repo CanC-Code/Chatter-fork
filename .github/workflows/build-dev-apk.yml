@@ -27,19 +27,20 @@ jobs:
         run: npm install
 
       - name: Generate Android Folder (Prebuild)
-        # This bundles the JS and creates the 'android' folder
         run: npx expo prebuild --platform android --no-install
 
       - name: Build Release APK
         run: |
           cd android
           chmod +x gradlew
-          # Changed to assembleRelease to include the JS bundle
           ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g"
+
+      - name: Debug - List Files
+        # This helps us see where the APK went if the upload fails
+        run: find android/app/build/outputs/apk -name "*.apk"
 
       - name: Upload Dev APK
         uses: actions/upload-artifact@v4
         with:
           name: ChatterUI-Dev-Release
-          # Path points to the release folder instead of debug
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: android/app/build/outputs/apk/**/*.apk
